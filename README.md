@@ -36,13 +36,19 @@ Before playing songs, you need to download a list. Use [AnisongDB](https://aniso
 #### Lists
 
 To play lists (aka those `.json` files) inside the `lists` directory, use the following command:
-```player --list lists```
+```
+player --list lists
+```
 
 Note the above command does not search folders recursively. If you've put files into subdirectories, you need to specify them:
-```player --list lists\firstlist lists\someotherlist```
+```
+player --list lists\firstlist lists\someotherlist
+```
 
 The player also understands individual files:
-```player --list lists\overlord_ii.json lists\overlord_iv.json```
+```
+player --list lists\overlord_ii.json lists\overlord_iv.json
+```
 
 #### Options
 
