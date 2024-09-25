@@ -53,7 +53,9 @@ player --list lists\overlord_ii.json lists\overlord_iv.json
 #### Options
 
 There are many options to adjust how you want the player to behave. You can either make changes to the `options.conf` file, or specify command line arguments. View those command line arguments by using
-```player --help```
+```
+player --help
+```
 
 The above lists example can instead be done through the `options.conf` file, for example.
 
