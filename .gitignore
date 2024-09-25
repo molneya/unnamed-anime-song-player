@@ -1,0 +1,11 @@
+
+.pyinstaller/
+.venv/
+__pycache__/
+build/
+data/
+dist/
+icons/
+lists/
+
+player.db
