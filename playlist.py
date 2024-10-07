@@ -113,7 +113,7 @@ class Playlist:
             print("This is your first time playing this song.")
         else:
             delta = datetime.now() - last_played
-            print(f"You have played this song {play_count} time{'s' if play_count != 1 else ''}, most recently on {last_played.strftime('%Y/%m/%d')} ({delta.days} days ago)")
+            print(f"You have played this song {play_count} {'time' if play_count == 1 else 'times'}, most recently on {last_played.strftime('%Y/%m/%d')} ({delta.days} {'day' if delta.days == 1 else 'days'} ago)")
 
         # Update currently playing file
         if self.options.output:
