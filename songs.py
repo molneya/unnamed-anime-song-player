@@ -1,6 +1,7 @@
 
 import json, logging, os, requests, subprocess
 from dataclasses import dataclass
+from hosts import hosts
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
 
@@ -59,12 +60,26 @@ class Song:
         if os.path.isfile(self.file_path):
             return
 
-        try:
-            # Request new file
-            logging.debug(f"Requesting download: {self.name()}")
-            r = requests.get("https://files.catbox.moe/" + self.audio)
-        except Exception as e:
-            logging.warning(f"Failed download for {self.name()}: {e}")
+        success = False
+
+        # Sometimes, hosts can be out of date. Therefore, try different ones until we get a hit.
+        for host in hosts:
+            url = host + self.audio
+
+            try:
+                r = requests.get(url)
+            except Exception as e:
+                logging.warning(f"Download failed: {e}")
+                continue
+
+            if not r.ok:
+                continue
+
+            success = True
+            break
+
+        if not success:
+            logging.warning(f"Failed to get audio for {self.name}")
             return
 
         # Save file
