@@ -15,6 +15,7 @@ class Options:
         self.search_anime = []
         self.exact_search = False
         self.copyright_as_album = False
+        self.update_metadata = False
 
     def from_file(self, file_path):
         '''
@@ -40,7 +41,7 @@ class Options:
                         case 'player' | 'output' | 'log_level':
                             setattr(self, key, value)
                         # Switches
-                        case 'prefer_english' | 'offline_mode' | 'exact_search' | 'copyright_as_album':
+                        case 'prefer_english' | 'offline_mode' | 'exact_search' | 'copyright_as_album' | 'update_metadata':
                             setattr(self, key, bool(int(value)))
                         # Floats
                         case 'min_difficulty' | 'max_difficulty':
@@ -60,7 +61,7 @@ class Options:
         Sets options from command line arguments. This will overwrite options loaded from file.
         '''
         parser = argparse.ArgumentParser()
-        parser.add_argument("-l", "--list", default=self.lists, type=pathlib.Path, nargs='+', help="lists to play, can be either directories or files")
+        parser.add_argument("-l", "--lists", default=self.lists, type=pathlib.Path, nargs='+', help="lists to play, can be either directories or files")
         parser.add_argument("-p", "--player", default=self.player, type=str, help="the audio player to use")
         parser.add_argument("-o", "--output", default=self.output, type=pathlib.Path, help="output file of the currently playing song")
         parser.add_argument("--prefer-english", default=self.prefer_english, action="store_true", help="show titles in english")
@@ -72,6 +73,7 @@ class Options:
         parser.add_argument("--search-anime", default=self.search_anime, type=str, nargs='*', metavar="ANIME", help="search for anime to play from")
         parser.add_argument("--exact-search", default=self.exact_search, action="store_true", help="show results for exact searches only")
         parser.add_argument("--copyright-as-album", default=self.copyright_as_album, action="store_true", help="sets mp3 copyright info as album info instead")
+        parser.add_argument("--update-metadata", default=self.copyright_as_album, action="store_true", help="updates mp3 metadata for all previously downloaded songs")
         args = parser.parse_args()
 
         # Set values

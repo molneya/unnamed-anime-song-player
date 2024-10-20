@@ -94,15 +94,21 @@ class Song:
         '''
         Sets the metadata of the song to something more reasonable.
         '''
+        # We can't update tags if the song isn't downloaded
+        if not os.path.isfile(self.file_path):
+            return
+
         song = MP3(self.file_path, ID3=EasyID3)
 
-        if song.tags is None:
+        if not song.tags:
             logging.warning(f"Failed to load and set tags: {self.file_path}")
             return
 
-        # Get old title information, which is usually encoding information
+        # Get encoding information (or title, which sometimes also has encoding information)
         encoding = ""
-        if song.tags and 'title' in song.tags:
+        if 'encodedby' in song.tags:
+            encoding = song.tags['encodedby'][0]
+        elif 'title' in song.tags:
             encoding = song.tags['title'][0]
 
         # Delete existing tags
@@ -126,7 +132,7 @@ class Song:
         song.save()
 
         logging.debug(f"Updated tags: {self.file_path}")
-        logging.debug(f"Previous tags title: {encoding}")
+        logging.debug(f"Previous encoding: {encoding}")
 
     def play(self, player):
         '''

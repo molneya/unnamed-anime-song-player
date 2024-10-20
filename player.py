@@ -25,6 +25,10 @@ def main():
     # Start playlist
     playlist = Playlist(options, db)
     playlist.create()
+
+    if options.update_metadata:
+        playlist.update_metadata()
+
     playlist.play()
 
 if __name__ == "__main__":

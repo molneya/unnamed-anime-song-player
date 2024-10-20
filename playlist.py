@@ -128,6 +128,13 @@ class Playlist:
 
             logging.debug(f"Updated file {self.options.output}: {encoded}")
 
+    def update_metadata(self):
+        '''
+        Updates all metadata for playlist.
+        '''
+        for song in self.songs:
+            song.set_metadata(self.options.copyright_as_album)
+
     def play(self):
         '''
         Plays songs from playlist.
