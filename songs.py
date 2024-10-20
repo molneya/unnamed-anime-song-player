@@ -79,7 +79,7 @@ class Song:
             break
 
         if not success:
-            logging.warning(f"Failed to get audio for {self.name}")
+            logging.warning(f"Failed to get audio for {self.name()}")
             return
 
         # Save file
