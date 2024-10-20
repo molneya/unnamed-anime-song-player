@@ -52,7 +52,7 @@ class Song:
     def name(self, prefer_english: bool=False):
         return f"{self.artist} - {self.title} [{self.anime.name if prefer_english else self.anime.name_jp}]"
 
-    def download(self):
+    def download(self, copyright_as_album=False):
         '''
         Downloads the song into our collection.
         '''
@@ -88,9 +88,9 @@ class Song:
             f.write(r.content)
 
         # Set the metadata
-        self.set_metadata()
+        self.set_metadata(copyright_as_album)
 
-    def set_metadata(self):
+    def set_metadata(self, copyright_as_album=False):
         '''
         Sets the metadata of the song to something more reasonable.
         '''
@@ -105,17 +105,24 @@ class Song:
         if song.tags and 'title' in song.tags:
             encoding = song.tags['title'][0]
 
+        # Delete existing tags
         song.delete()
+
+        # Add tag information
+        song.tags['artist'] = self.artist
+        song.tags['title'] = self.title
+        song.tags['website'] = self.audio
+        song.tags['media'] = f"{self.anime.type} Anime"
+        song.tags['discsubtitle'] = self.type
 
         if encoding:
             song.tags['encodedby'] = encoding
 
-        # Add the rest of the information
-        song.tags['artist'] = self.artist
-        song.tags['title'] = self.title
-        song.tags['website'] = self.audio
-        song.tags['copyright'] = self.anime.name_jp
-        song.tags['media'] = f"{self.anime.type} Anime"
+        if copyright_as_album:
+            song.tags['album'] = self.anime.name_jp
+        else:
+            song.tags['copyright'] = self.anime.name_jp
+
         song.save()
 
         logging.debug(f"Updated tags: {self.file_path}")

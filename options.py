@@ -14,6 +14,7 @@ class Options:
         self.search_artists = []
         self.search_anime = []
         self.exact_search = False
+        self.copyright_as_album = False
 
     def from_file(self, file_path):
         '''
@@ -39,7 +40,7 @@ class Options:
                         case 'player' | 'output' | 'log_level':
                             setattr(self, key, value)
                         # Switches
-                        case 'prefer_english' | 'offline_mode' | 'exact_search':
+                        case 'prefer_english' | 'offline_mode' | 'exact_search' | 'copyright_as_album':
                             setattr(self, key, bool(int(value)))
                         # Floats
                         case 'min_difficulty' | 'max_difficulty':
@@ -70,17 +71,9 @@ class Options:
         parser.add_argument("--search-artists", default=self.search_artists, type=str, nargs='*', metavar="ARTIST", help="search for artists to play from")
         parser.add_argument("--search-anime", default=self.search_anime, type=str, nargs='*', metavar="ANIME", help="search for anime to play from")
         parser.add_argument("--exact-search", default=self.exact_search, action="store_true", help="show results for exact searches only")
+        parser.add_argument("--copyright-as-album", default=self.copyright_as_album, action="store_true", help="sets mp3 copyright info as album info instead")
         args = parser.parse_args()
 
         # Set values
-        self.lists = args.list
-        self.player = args.player
-        self.output = args.output
-        self.prefer_english = args.prefer_english
-        self.offline_mode = args.offline_mode
-        self.log_level = args.log_level
-        self.min_difficulty = args.min_difficulty
-        self.max_difficulty = args.max_difficulty
-        self.search_artists = args.search_artists
-        self.search_anime = args.search_anime
-        self.exact_search = args.exact_search
+        for key, value in vars(args).items():
+            setattr(self, key, value)

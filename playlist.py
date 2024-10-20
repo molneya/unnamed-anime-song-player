@@ -139,7 +139,7 @@ class Playlist:
 
             # We are permitted to download the song if we aren't in offline mode
             if not self.options.offline_mode:
-                song.download()
+                song.download(self.options.copyright_as_album)
 
             # If we can't find the song, skip it. This should only happen if songs were deleted from the data folder.
             if not os.path.isfile(song.file_path):
