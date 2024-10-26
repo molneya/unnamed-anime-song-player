@@ -101,8 +101,7 @@ class Song:
         song = MP3(self.file_path, ID3=EasyID3)
 
         if not song.tags:
-            logging.warning(f"Failed to load and set tags: {self.file_path}")
-            return
+            song.tags = EasyID3()
 
         # Get encoding information (or title, which sometimes also has encoding information)
         encoding = ""

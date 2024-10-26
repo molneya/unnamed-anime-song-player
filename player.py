@@ -27,6 +27,7 @@ def main():
     playlist.create()
 
     if options.update_metadata:
+        print("Updating metadata of previously downloaded songs...")
         playlist.update_metadata()
 
     playlist.play()
