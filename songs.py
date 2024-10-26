@@ -119,6 +119,7 @@ class Song:
         song.tags['website'] = self.audio
         song.tags['media'] = f"{self.anime.type} Anime"
         song.tags['discsubtitle'] = self.type
+        song.tags['compilation'] = "1"
 
         if encoding:
             song.tags['encodedby'] = encoding
