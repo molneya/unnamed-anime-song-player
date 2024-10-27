@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from hosts import hosts
 from mutagen.easyid3 import EasyID3
 from mutagen.mp3 import MP3
+from typing import Dict
 
 @dataclass
 class Anime:
@@ -23,6 +24,7 @@ class Song:
     duration: float | None
     id: int
     season: str
+    linked_ids: Dict[str, int]
 
     def __hash__(self):
         if self.audio:
@@ -47,14 +49,31 @@ class Song:
             data['songLength'],
             data['annSongId'],
             data['animeVintage'],
+            data['linked_ids'],
         )
 
     @property
     def file_path(self):
         return os.path.join("data", self.audio)
 
-    def name(self, prefer_english: bool=False):
-        return f"{self.artist} - {self.title} [{self.anime.name if prefer_english else self.anime.name_jp}]"
+    def full_name(self, prefer_english: bool=False):
+        return f"{self.artist} - {self.title} [{self.anime_name(prefer_english)}]"
+
+    def anime_name(self, prefer_english: bool=False):
+        return self.anime.name if prefer_english else self.anime.name_jp
+
+    def anime_link(self, preferred_site: str="anilist"):
+        base_urls = {
+            'myanimelist': "https://myanimelist.net/anime/",
+            'anidb': "https://anidb.net/anime/",
+            'anilist': "https://anilist.co/anime/",
+            'kitsu': "https://kitsu.app/anime/",
+        }
+
+        if preferred_site not in self.linked_ids:
+            preferred_site = next(iter(self.linked_ids))
+
+        return base_urls[preferred_site] + str(self.linked_ids[preferred_site])
 
     def download(self, copyright_as_album=False):
         '''
@@ -83,7 +102,7 @@ class Song:
             break
 
         if not success:
-            logging.warning(f"Failed to get audio for {self.name()}")
+            logging.warning(f"Failed to get audio for {self.audio}")
             return
 
         # Save file

@@ -1,7 +1,8 @@
 
-import json, logging, random, os
+import json, logging, random, os, time
 from datetime import datetime
 from getch import getch_or_timeout
+from pypresence import Presence, ActivityType
 from songs import Song
 
 class Playlist:
@@ -15,6 +16,10 @@ class Playlist:
         self.total_songs = 0
         self.count = 0
         self.duration = 0
+
+        # Discord rich presence
+        self.rpc = Presence(1299967728874029137)
+        self.rpc.connect()
 
     def load_file(self, file, songs):
         '''
@@ -34,7 +39,7 @@ class Playlist:
 
             # Some songs have no url, ignore them since we can't download them
             if not song.audio:
-                logging.info(f"No audio link found: {song.name(self.options.prefer_english)}")
+                logging.info(f"No audio link found: {song.full_name(self.options.prefer_english)}")
                 continue
 
             songs.add(song)
@@ -98,11 +103,11 @@ class Playlist:
         hours, minutes = divmod(minutes, 60)
         print(f"Loaded {self.count}/{self.total_songs} songs from {self.total_files} files, with a total playlist duration of {hours}:{minutes:0<2}:{seconds:0<2}")
 
-    def write(self, song, index):
+    def update(self, song, index):
         '''
-        Handles updating database and currently playing file.
+        Updates player-related statuses and files.
         '''
-        currently_playing = f"{song.name(self.options.prefer_english)} ({index}/{self.count}) {{{song.difficulty}%}}"
+        currently_playing = f"{song.full_name(self.options.prefer_english)} ({index}/{self.count}) {{{song.difficulty}%}}"
         print(f"Currently playing: {currently_playing}")
 
         # Database operations
@@ -127,6 +132,16 @@ class Playlist:
                 f.write(encoded)
 
             logging.debug(f"Updated file {self.options.output}: {encoded}")
+
+        # Update rich presence
+        self.rpc.update(
+            activity_type=ActivityType.LISTENING,
+            details=song.title,
+            state=f"{song.artist} ({song.anime_name(self.options.prefer_english)})",
+            start=time.time(),
+            end=time.time() + song.duration or 90,
+            buttons=[{'label': "Anilist", 'url': song.anime_link()}],
+        )
 
     def update_metadata(self):
         '''
@@ -153,7 +168,7 @@ class Playlist:
                 logging.warning(f"File not found: {song.file_path}")
                 continue
 
-            self.write(song, index + 1)
+            self.update(song, index + 1)
             song.play(self.options.player)
 
             # Check user input for if we want to do some extra function
