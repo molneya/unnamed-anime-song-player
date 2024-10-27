@@ -21,6 +21,8 @@ class Song:
     difficulty: float
     audio: str | None
     duration: float | None
+    id: int
+    season: str
 
     def __hash__(self):
         if self.audio:
@@ -43,6 +45,8 @@ class Song:
             data['songDifficulty'],
             data['audio'][-10:] if data['audio'] else None, # Only get file name
             data['songLength'],
+            data['annSongId'],
+            data['animeVintage'],
         )
 
     @property
@@ -120,6 +124,8 @@ class Song:
         song.tags['media'] = f"{self.anime.type} Anime"
         song.tags['version'] = self.type
         song.tags['compilation'] = "1"
+        song.tags['tracknumber'] = str(self.id)
+        song.tags['date'] = self.season[-4:]
 
         if encoding:
             song.tags['encodedby'] = encoding
