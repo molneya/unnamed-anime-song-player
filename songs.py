@@ -42,7 +42,7 @@ class Song:
             data['songType'],
             data['songDifficulty'],
             data['audio'][-10:] if data['audio'] else None, # Only get file name
-            data['songLength']
+            data['songLength'],
         )
 
     @property
@@ -118,7 +118,7 @@ class Song:
         song.tags['title'] = self.title
         song.tags['website'] = self.audio
         song.tags['media'] = f"{self.anime.type} Anime"
-        song.tags['discsubtitle'] = self.type
+        song.tags['version'] = self.type
         song.tags['compilation'] = "1"
 
         if encoding:
