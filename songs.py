@@ -71,7 +71,7 @@ class Song:
         }
 
         if preferred_site not in self.linked_ids:
-            preferred_site = next(iter(self.linked_ids))
+            return None
 
         return base_urls[preferred_site] + str(self.linked_ids[preferred_site])
 

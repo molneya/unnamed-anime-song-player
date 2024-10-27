@@ -133,6 +133,15 @@ class Playlist:
 
             logging.debug(f"Updated file {self.options.output}: {encoded}")
 
+        anilist_link = song.anime_link("anilist")
+        mal_link = song.anime_link("myanimelist")
+        buttons = []
+
+        if anilist_link:
+            buttons.append({'label': "View on Anilist", 'url': anilist_link})
+        if mal_link:
+            buttons.append({'label': "View on MyAnimeList", 'url': mal_link})
+
         # Update rich presence
         self.rpc.update(
             activity_type=ActivityType.LISTENING,
@@ -140,7 +149,7 @@ class Playlist:
             state=f"{song.artist} ({song.anime_name(self.options.prefer_english)})",
             start=time.time(),
             end=time.time() + song.duration or 90,
-            buttons=[{'label': "Anilist", 'url': song.anime_link()}],
+            buttons=buttons,
         )
 
     def update_metadata(self):
