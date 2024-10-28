@@ -147,11 +147,15 @@ class Playlist:
         # Shorten strings if they are too long
         if len(details) > 128:
             details = details[:125] + "..."
+        elif len(details) < 2:
+            details += "  "
 
         if len(state) > 128:
             state = song.artist
         if len(state) > 128:
             state = state[:125] + "..."
+        elif len(state) < 2:
+            state += "  "
 
         # Only include buttons if links exist
         if anilist_link:
