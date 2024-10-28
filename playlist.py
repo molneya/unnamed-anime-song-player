@@ -103,35 +103,32 @@ class Playlist:
         hours, minutes = divmod(minutes, 60)
         print(f"Loaded {self.count}/{self.total_songs} songs from {self.total_files} files, with a total playlist duration of {hours}:{minutes:0<2}:{seconds:0<2}")
 
-    def update(self, song, index):
+    def update_currently_playing(self, currently_playing):
         '''
-        Updates player-related statuses and files.
+        Updates output file to the current song.
         '''
-        currently_playing = f"{song.full_name(self.options.prefer_english)} ({index}/{self.count}) {{{song.difficulty}%}}"
-        print(f"Currently playing: {currently_playing}")
+        encoded = ""
 
-        # Database operations
+        for char in currently_playing:
+            value = ord(char)
+            encoded += rf"[\{value}]" if value >= 256 else char
+
+        with open(self.options.output, 'w') as f:
+            f.write(encoded)
+
+    def update_database(self, song):
+        '''
+        Updates last played information in the database.
+        '''
         play_count, last_played = self.database.select(song)
         self.database.update(song)
 
         if play_count == 0:
             print("This is your first time playing this song.")
-        else:
-            delta = datetime.now() - last_played
-            print(f"You have played this song {play_count} {'time' if play_count == 1 else 'times'}, most recently on {last_played.strftime('%Y/%m/%d')} ({delta.days} {'day' if delta.days == 1 else 'days'} ago)")
+            return
 
-        # Update currently playing file
-        if self.options.output:
-            encoded = ""
-
-            for char in currently_playing:
-                value = ord(char)
-                encoded += rf"[\{value}]" if value >= 256 else char
-
-            with open(self.options.output, 'w') as f:
-                f.write(encoded)
-
-            logging.debug(f"Updated file {self.options.output}: {encoded}")
+        delta = datetime.now() - last_played
+        print(f"You have played this song {play_count} {'time' if play_count == 1 else 'times'}, most recently on {last_played.strftime('%Y/%m/%d')} ({delta.days} {'day' if delta.days == 1 else 'days'} ago)")
 
     def update_rich_presence(self, song):
         '''
@@ -193,7 +190,13 @@ class Playlist:
                 logging.warning(f"File not found: {song.file_path}")
                 continue
 
-            self.update(song, index + 1)
+            currently_playing = f"{song.full_name(self.options.prefer_english)} ({index+1}/{self.count}) {{{song.difficulty}%}}"
+            print(f"Currently playing: {currently_playing}")
+
+            if self.options.output::
+                self.update_currently_playing(currently_playing)
+
+            self.update_database(song)
             self.update_rich_presence(song)
 
             song.play(self.options.player)
