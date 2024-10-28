@@ -99,6 +99,9 @@ class Playlist:
         self.duration = sum(song.duration or 90 for song in self.songs)
         random.shuffle(self.songs)
 
+        if self.options.start_with_unplayed:
+            self.songs.sort(key=lambda song: os.path.exists(song.file_path))
+
         minutes, seconds = divmod(int(self.duration), 60)
         hours, minutes = divmod(minutes, 60)
         print(f"Loaded {self.count}/{self.total_songs} songs from {self.total_files} files, with a total playlist duration of {hours}:{minutes:0<2}:{seconds:0<2}")
@@ -141,7 +144,7 @@ class Playlist:
         mal_link = song.anime_link("myanimelist")
         buttons = []
 
-        # Shorten string if they are too long
+        # Shorten strings if they are too long
         if len(details) > 128:
             details = details[:125] + "..."
 
@@ -193,7 +196,7 @@ class Playlist:
             currently_playing = f"{song.full_name(self.options.prefer_english)} ({index+1}/{self.count}) {{{song.difficulty}%}}"
             print(f"Currently playing: {currently_playing}")
 
-            if self.options.output::
+            if self.options.output:
                 self.update_currently_playing(currently_playing)
 
             self.update_database(song)
