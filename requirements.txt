@@ -1,5 +1,6 @@
 certifi==2024.8.30
 charset-normalizer==3.3.2
+filetype==1.2.0
 idna==3.10
 mutagen==1.47.0
 pypresence @ https://github.com/qwertyquerty/pypresence/archive/master.zip#sha256=7648c8baead21cdb345a285ec67e849109a3f7ec7cd9053fd8b9bb17141eb4d6

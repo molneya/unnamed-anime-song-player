@@ -1,8 +1,9 @@
 
-import json, logging, os, requests, subprocess
+import filetype, json, logging, os, requests, subprocess, time
 from dataclasses import dataclass
 from hosts import hosts
 from mutagen.easyid3 import EasyID3
+from mutagen.id3 import ID3, APIC
 from mutagen.mp3 import MP3
 from typing import Dict
 
@@ -56,6 +57,14 @@ class Song:
     def file_path(self):
         return os.path.join("data", self.audio)
 
+    @property
+    def image_file_path(self):
+        if 'anilist' not in self.linked_ids:
+            return
+        if not self.linked_ids['anilist']:
+            return
+        return os.path.join("data", str(self.linked_ids['anilist']))
+
     def full_name(self, prefer_english: bool=False):
         return f"{self.artist} - {self.title} [{self.anime_name(prefer_english)}]"
 
@@ -72,10 +81,12 @@ class Song:
 
         if preferred_site not in self.linked_ids:
             return None
+        if not self.linked_ids[preferred_site]:
+            return
 
         return base_urls[preferred_site] + str(self.linked_ids[preferred_site])
 
-    def download(self, copyright_as_album=False):
+    def download(self, copyright_as_album=False, include_cover_art=False):
         '''
         Downloads the song into our collection.
         '''
@@ -111,9 +122,9 @@ class Song:
             f.write(r.content)
 
         # Set the metadata
-        self.set_metadata(copyright_as_album)
+        self.set_metadata(copyright_as_album, include_cover_art)
 
-    def set_metadata(self, copyright_as_album=False):
+    def set_metadata(self, copyright_as_album=False, include_cover_art=False):
         '''
         Sets the metadata of the song to something more reasonable.
         '''
@@ -156,8 +167,79 @@ class Song:
 
         song.save()
 
+        if include_cover_art:
+            self.set_image()
+
         logging.debug(f"Updated tags: {self.file_path}")
         logging.debug(f"Previous encoding: {encoding}")
+
+    def download_image(self):
+        '''
+        Downloads anime cover art.
+        '''
+        if not self.image_file_path:
+            logging.warning(f"Anilist ID not linked: {self.audio}")
+            return
+
+        query = """
+            query ($id: Int) {
+                Media(id: $id, type: ANIME) {
+                    coverImage {
+                        extraLarge
+                    }
+                }
+            }
+        """
+        id = self.linked_ids['anilist']
+
+        r = requests.post(
+            "https://graphql.anilist.co",
+            json={'query': query, 'variables': {"id": id}},
+        )
+
+        # Anilist rate limit is 30 requests per minute
+        time.sleep(2)
+
+        if not r.ok:
+            logging.warning(f"Bad request for Anilist query")
+            return
+
+        json = r.json()
+        image_url = json['data']['Media']['coverImage']['extraLarge']
+
+        r = requests.get(image_url)
+
+        if not r.ok:
+            logging.warning(f"Bad request Anilist image query")
+            return
+
+        with open(self.image_file_path, 'wb') as f:
+            logging.debug(f"Saving file: {self.image_file_path}")
+            f.write(r.content)
+
+    def set_image(self):
+        '''
+        Sets mp3 cover art.
+        '''
+        if not self.image_file_path:
+            return
+        if not os.path.exists(self.image_file_path):
+            self.download_image()
+
+        song = MP3(self.file_path)
+
+        song.tags.add(
+            APIC(
+                encoding=0,
+                type=3,
+                mime=filetype.guess(self.image_file_path).mime,
+                desc=u"Cover",
+                data=open(self.image_file_path, 'rb').read(),
+            )
+        )
+
+        song.save()
+        logging.debug(f"Updated image: {self.file_path}")
 
     def play(self, player):
         '''
