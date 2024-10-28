@@ -133,20 +133,36 @@ class Playlist:
 
             logging.debug(f"Updated file {self.options.output}: {encoded}")
 
+    def update_rich_presence(self, song):
+        '''
+        Updates discord rich presence to the current song.
+        '''
+        details = song.title
+        state = f"{song.artist} ({song.anime_name(self.options.prefer_english)})"
+
         anilist_link = song.anime_link("anilist")
         mal_link = song.anime_link("myanimelist")
         buttons = []
 
+        # Shorten string if they are too long
+        if len(details) > 128:
+            details = details[:125] + "..."
+
+        if len(state) > 128:
+            state = song.artist
+        if len(state) > 128:
+            state = state[:125] + "..."
+
+        # Only include buttons if links exist
         if anilist_link:
             buttons.append({'label': "View on Anilist", 'url': anilist_link})
         if mal_link:
             buttons.append({'label': "View on MyAnimeList", 'url': mal_link})
 
-        # Update rich presence
         self.rpc.update(
             activity_type=ActivityType.LISTENING,
-            details=song.title,
-            state=f"{song.artist} ({song.anime_name(self.options.prefer_english)})",
+            details=details,
+            state=state,
             start=time.time(),
             end=time.time() + song.duration or 90,
             buttons=buttons,
@@ -178,6 +194,8 @@ class Playlist:
                 continue
 
             self.update(song, index + 1)
+            self.update_rich_presence(song)
+
             song.play(self.options.player)
 
             # Check user input for if we want to do some extra function
