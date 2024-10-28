@@ -204,7 +204,9 @@ class Playlist:
                 self.update_currently_playing(currently_playing)
 
             self.update_database(song)
-            self.update_rich_presence(song)
+
+            if not self.options.disable_discord_rpc:
+                self.update_rich_presence(song)
 
             song.play(self.options.player)
 

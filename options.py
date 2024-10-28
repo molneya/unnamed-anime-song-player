@@ -17,6 +17,7 @@ class Options:
         self.copyright_as_album = False
         self.update_metadata = False
         self.start_with_unplayed = False
+        self.disable_discord_rpc = False
 
     def from_file(self, file_path):
         '''
@@ -42,7 +43,7 @@ class Options:
                         case 'player' | 'output' | 'log_level':
                             setattr(self, key, value)
                         # Switches
-                        case 'prefer_english' | 'offline_mode' | 'exact_search' | 'copyright_as_album' | 'update_metadata' | 'start_with_unplayed':
+                        case 'prefer_english' | 'offline_mode' | 'exact_search' | 'copyright_as_album' | 'update_metadata' | 'start_with_unplayed' | 'disable_discord_rpc':
                             setattr(self, key, bool(int(value)))
                         # Floats
                         case 'min_difficulty' | 'max_difficulty':
@@ -76,6 +77,7 @@ class Options:
         parser.add_argument("--copyright-as-album", default=self.copyright_as_album, action="store_true", help="sets mp3 copyright info as album info instead")
         parser.add_argument("--update-metadata", default=self.copyright_as_album, action="store_true", help="updates mp3 metadata for all previously downloaded songs")
         parser.add_argument("--start-with-unplayed", default=self.start_with_unplayed, action="store_true", help="starts playlist with unplayed songs first")
+        parser.add_argument("--disable-discord-rpc", default=self.disable_discord_rpc, action="store_true", help="disables discord rich presence")
         args = parser.parse_args()
 
         # Set values
