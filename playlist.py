@@ -169,7 +169,7 @@ class Playlist:
             state=state,
             start=time.time(),
             end=time.time() + song.duration,
-            buttons=buttons,
+            buttons=buttons or None,
         )
 
     def update_metadata(self):
