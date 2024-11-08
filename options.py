@@ -20,7 +20,7 @@ class Options:
         self.copyright_as_album = False
         self.update_metadata = False
         self.start_with_unplayed = False
-        self.disable_discord_rpc = False
+        self.disable_discord_rpc = True
         self.include_cover_art = False
 
     def from_file(self, file_path):
