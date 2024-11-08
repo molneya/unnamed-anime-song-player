@@ -1,11 +1,14 @@
 
-import argparse, pathlib, logging, shlex
+import argparse, logging, shlex
+from pathlib import Path
 
 class Options:
     def __init__(self):
         self.lists = []
         self.player = "mpv --no-video"
-        self.output = r"skins\CurrentlyPlaying\CurrentlyPlaying.txt"
+        self.output = Path(r"skins\CurrentlyPlaying\CurrentlyPlaying.txt")
+        self.songs_path = Path("data")
+        self.covers_path = Path("covers")
         self.prefer_english = False
         self.offline_mode = False
         self.log_level = "WARNING"
@@ -41,7 +44,7 @@ class Options:
                 try:
                     match key.lower():
                         # String values
-                        case 'player' | 'output' | 'log_level':
+                        case 'player' | 'output' | 'songs_path' | 'covers_path' | 'log_level':
                             setattr(self, key, value)
                         # Switches
                         case 'prefer_english' | 'offline_mode' | 'exact_search' | 'copyright_as_album' | 'update_metadata' | 'start_with_unplayed' | 'disable_discord_rpc' | 'include_cover_art':
@@ -64,9 +67,11 @@ class Options:
         Sets options from command line arguments. This will overwrite options loaded from file.
         '''
         parser = argparse.ArgumentParser()
-        parser.add_argument("-l", "--lists", default=self.lists, type=pathlib.Path, nargs='+', help="lists to play, can be either directories or files")
+        parser.add_argument("-l", "--lists", default=self.lists, type=Path, nargs='+', help="lists to play, can be either directories or files")
         parser.add_argument("-p", "--player", default=self.player, type=str, help="the audio player to use")
-        parser.add_argument("-o", "--output", default=self.output, type=pathlib.Path, help="output file of the currently playing song")
+        parser.add_argument("-o", "--output", default=self.output, type=Path, help="output file of the currently playing song")
+        parser.add_argument("--songs-path", default=self.songs_path, type=Path, help="directory to save song data to")
+        parser.add_argument("--covers-path", default=self.covers_path, type=Path, help="directory to save anime cover data to")
         parser.add_argument("--prefer-english", default=self.prefer_english, action="store_true", help="show titles in english")
         parser.add_argument("--offline-mode", default=self.offline_mode, action="store_true", help="use the program without features requiring an internet connection")
         parser.add_argument("--log-level", default=self.log_level, type=str, help="level of logs to show")

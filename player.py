@@ -16,7 +16,8 @@ def main():
     logging.basicConfig(level=log_level, format="[%(levelname)s] %(message)s")
 
     # Ensure we have correct directories
-    os.makedirs("data", exist_ok=True)
+    os.makedirs(options.songs_path, exist_ok=True)
+    os.makedirs(options.covers_path, exist_ok=True)
 
     # Set up database
     db = Database("player.db")

@@ -54,22 +54,19 @@ class Song:
             data['linked_ids'],
         )
 
-    @property
-    def file_path(self):
-        # Try to find matching file mp3 file name
-        for path in Path("data").rglob(self.audio):
+    def file_path(self, songs_path):
+        # Try to find matching file mp3 file name in a sub folder
+        for path in Path(songs_path).rglob(self.audio):
             return path
-
         # Otherwise use default path
-        return os.path.join("data", self.audio)
+        return os.path.join(songs_path, self.audio)
 
-    @property
-    def image_file_path(self):
+    def image_file_path(self, covers_path):
         if 'anilist' not in self.linked_ids:
             return
         if not self.linked_ids['anilist']:
             return
-        return os.path.join("data", str(self.linked_ids['anilist']))
+        return os.path.join(covers_path, str(self.linked_ids['anilist']))
 
     def full_name(self, prefer_english: bool=False):
         return f"{self.artist} - {self.title} [{self.anime_name(prefer_english)}]"
@@ -92,12 +89,12 @@ class Song:
 
         return base_urls[preferred_site] + str(self.linked_ids[preferred_site])
 
-    def download(self, copyright_as_album=False, include_cover_art=False, prefer_english: bool=False):
+    def download(self, options):
         '''
         Downloads the song into our collection.
         '''
         # Don't download the file if we already have it
-        if os.path.isfile(self.file_path):
+        if os.path.isfile(self.file_path(options.songs_path)):
             return
 
         success = False
@@ -123,22 +120,22 @@ class Song:
             return
 
         # Save file
-        with open(self.file_path, 'wb') as f:
-            logging.debug(f"Saving file: {self.file_path}")
+        with open(self.file_path(options.songs_path), 'wb') as f:
+            logging.debug(f"Saving file: {self.file_path(options.songs_path)}")
             f.write(r.content)
 
         # Set the metadata
-        self.set_metadata(copyright_as_album, include_cover_art)
+        self.set_metadata(options)
 
-    def set_metadata(self, copyright_as_album=False, include_cover_art=False, prefer_english: bool=False):
+    def set_metadata(self, options):
         '''
         Sets the metadata of the song to something more reasonable.
         '''
         # We can't update tags if the song isn't downloaded
-        if not os.path.isfile(self.file_path):
+        if not os.path.isfile(self.file_path(options.songs_path)):
             return
 
-        song = MP3(self.file_path, ID3=EasyID3)
+        song = MP3(self.file_path(options.songs_path), ID3=EasyID3)
 
         if not song.tags:
             song.tags = EasyID3()
@@ -166,24 +163,24 @@ class Song:
         if encoding:
             song.tags['encodedby'] = encoding
 
-        if copyright_as_album:
-            song.tags['album'] = self.anime_name(prefer_english)
+        if options.copyright_as_album:
+            song.tags['album'] = self.anime_name(options.prefer_english)
         else:
-            song.tags['copyright'] = self.anime_name(prefer_english)
+            song.tags['copyright'] = self.anime_name(options.prefer_english)
 
         song.save()
 
-        if include_cover_art:
-            self.set_image()
+        if options.include_cover_art:
+            self.set_image(options)
 
-        logging.debug(f"Updated tags: {self.file_path}")
+        logging.debug(f"Updated tags: {self.file_path(options.songs_path)}")
         logging.debug(f"Previous encoding: {encoding}")
 
-    def download_image(self):
+    def download_image(self, options):
         '''
         Downloads anime cover art.
         '''
-        if not self.image_file_path:
+        if not self.image_file_path(options.covers_path):
             logging.warning(f"Anilist ID not linked: {self.audio}")
             return
 
@@ -219,36 +216,36 @@ class Song:
             logging.warning(f"Bad request Anilist image query")
             return
 
-        with open(self.image_file_path, 'wb') as f:
-            logging.debug(f"Saving file: {self.image_file_path}")
+        with open(self.image_file_path(options.covers_path), 'wb') as f:
+            logging.debug(f"Saving file: {self.image_file_path(options.covers_path)}")
             f.write(r.content)
 
-    def set_image(self):
+    def set_image(self, options):
         '''
         Sets mp3 cover art.
         '''
-        if not self.image_file_path:
+        if not self.image_file_path(options.covers_path):
             return
-        if not os.path.exists(self.image_file_path):
-            self.download_image()
+        if not os.path.exists(self.image_file_path(options.covers_path)):
+            self.download_image(options)
 
-        song = MP3(self.file_path)
+        song = MP3(self.file_path(options.songs_path))
 
         song.tags.add(
             APIC(
                 encoding=0,
                 type=3,
-                mime=filetype.guess(self.image_file_path).mime,
+                mime=filetype.guess(self.image_file_path(options.covers_path)).mime,
                 desc=u"Cover",
-                data=open(self.image_file_path, 'rb').read(),
+                data=open(self.image_file_path(options.covers_path), 'rb').read(),
             )
         )
 
         song.save()
-        logging.debug(f"Updated image: {self.file_path}")
+        logging.debug(f"Updated image: {self.file_path(options.songs_path)}")
 
-    def play(self, player):
+    def play(self, options):
         '''
         Plays the song through the preferred player.
         '''
-        subprocess.run(f"{player} {self.file_path}", shell=True, stdout=subprocess.PIPE)
+        subprocess.run(f"{options.player} {self.file_path(options.songs_path)}", shell=True, stdout=subprocess.PIPE)

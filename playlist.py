@@ -11,7 +11,7 @@ class Playlist:
         self.database = database
         self.songs = []
 
-        # Songs meta info
+        # Playlist meta info
         self.total_files = 0
         self.total_songs = 0
         self.count = 0
@@ -177,7 +177,7 @@ class Playlist:
         Updates all metadata for playlist.
         '''
         for song in self.songs:
-            song.set_metadata(self.options.copyright_as_album, self.options.include_cover_art, self.options.prefer_english)
+            song.set_metadata(self.options)
 
     def play(self):
         '''
@@ -190,11 +190,11 @@ class Playlist:
 
             # We are permitted to download the song if we aren't in offline mode
             if not self.options.offline_mode:
-                song.download(self.options.copyright_as_album, self.options.include_cover_art, self.options.prefer_english)
+                song.download(self.options)
 
             # If we can't find the song, skip it. This should only happen if songs were deleted from the data folder.
-            if not os.path.isfile(song.file_path):
-                logging.warning(f"File not found: {song.file_path}")
+            if not os.path.isfile(song.file_path(self.options.songs_path)):
+                logging.warning(f"File not found: {song.file_path(self.options.songs_path)}")
                 continue
 
             currently_playing = f"{song.full_name(self.options.prefer_english)} ({index+1}/{self.count}) {{{song.difficulty}%}}"
@@ -208,7 +208,7 @@ class Playlist:
             if not self.options.disable_discord_rpc:
                 self.update_rich_presence(song)
 
-            song.play(self.options.player)
+            song.play(self.options)
 
             # Check user input for if we want to do some extra function
             char = getch_or_timeout(0.3)
