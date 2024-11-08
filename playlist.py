@@ -177,7 +177,7 @@ class Playlist:
         Updates all metadata for playlist.
         '''
         for song in self.songs:
-            song.set_metadata(self.options.copyright_as_album, self.options.include_cover_art)
+            song.set_metadata(self.options.copyright_as_album, self.options.include_cover_art, self.options.prefer_english)
 
     def play(self):
         '''
@@ -190,7 +190,7 @@ class Playlist:
 
             # We are permitted to download the song if we aren't in offline mode
             if not self.options.offline_mode:
-                song.download(self.options.copyright_as_album, self.options.include_cover_art)
+                song.download(self.options.copyright_as_album, self.options.include_cover_art, self.options.prefer_english)
 
             # If we can't find the song, skip it. This should only happen if songs were deleted from the data folder.
             if not os.path.isfile(song.file_path):

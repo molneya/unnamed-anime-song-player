@@ -86,7 +86,7 @@ class Song:
 
         return base_urls[preferred_site] + str(self.linked_ids[preferred_site])
 
-    def download(self, copyright_as_album=False, include_cover_art=False):
+    def download(self, copyright_as_album=False, include_cover_art=False, prefer_english: bool=False):
         '''
         Downloads the song into our collection.
         '''
@@ -124,7 +124,7 @@ class Song:
         # Set the metadata
         self.set_metadata(copyright_as_album, include_cover_art)
 
-    def set_metadata(self, copyright_as_album=False, include_cover_art=False):
+    def set_metadata(self, copyright_as_album=False, include_cover_art=False, prefer_english: bool=False):
         '''
         Sets the metadata of the song to something more reasonable.
         '''
@@ -161,9 +161,9 @@ class Song:
             song.tags['encodedby'] = encoding
 
         if copyright_as_album:
-            song.tags['album'] = self.anime.name_jp
+            song.tags['album'] = self.anime_name(prefer_english)
         else:
-            song.tags['copyright'] = self.anime.name_jp
+            song.tags['copyright'] = self.anime_name(prefer_english)
 
         song.save()
 
