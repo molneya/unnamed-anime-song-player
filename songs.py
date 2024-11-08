@@ -47,7 +47,7 @@ class Song:
             data['songType'],
             data['songDifficulty'],
             data['audio'][-10:] if data['audio'] else None, # Only get file name
-            data['songLength'],
+            data['songLength'] or 90,
             data['annSongId'],
             data['animeVintage'],
             data['linked_ids'],

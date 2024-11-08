@@ -96,7 +96,7 @@ class Playlist:
 
         self.songs = list(songs)
         self.count = len(self.songs)
-        self.duration = sum(song.duration or 90 for song in self.songs)
+        self.duration = sum(song.duration for song in self.songs)
         random.shuffle(self.songs)
 
         if self.options.start_with_unplayed:
@@ -168,7 +168,7 @@ class Playlist:
             details=details,
             state=state,
             start=time.time(),
-            end=time.time() + song.duration or 90,
+            end=time.time() + song.duration,
             buttons=buttons,
         )
 
