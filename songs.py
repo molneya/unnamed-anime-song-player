@@ -5,6 +5,7 @@ from hosts import hosts
 from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 from mutagen.mp3 import MP3
+from pathlib import Path
 from typing import Dict
 
 @dataclass
@@ -55,6 +56,11 @@ class Song:
 
     @property
     def file_path(self):
+        # Try to find matching file mp3 file name
+        for path in Path("data").rglob(self.audio):
+            return path
+
+        # Otherwise use default path
         return os.path.join("data", self.audio)
 
     @property
