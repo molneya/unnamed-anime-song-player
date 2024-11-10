@@ -74,7 +74,7 @@ class Playlist:
 
         # Filter song list
         if self.options.offline_mode:
-            songs = filter(lambda song: os.path.isfile(song.file_path), songs)
+            songs = filter(lambda song: os.path.isfile(song.file_path(self.options.songs_path)), songs)
 
         if self.options.min_difficulty:
             songs = filter(lambda song: self.options.min_difficulty <= song.difficulty if song.difficulty else False, songs)
@@ -100,7 +100,7 @@ class Playlist:
         random.shuffle(self.songs)
 
         if self.options.start_with_unplayed:
-            self.songs.sort(key=lambda song: os.path.exists(song.file_path))
+            self.songs.sort(key=lambda song: os.path.exists(song.file_path(self.options.songs_path)))
 
         minutes, seconds = divmod(int(self.duration), 60)
         hours, minutes = divmod(minutes, 60)
