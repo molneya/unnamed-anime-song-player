@@ -6,7 +6,7 @@ from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, APIC
 from mutagen.mp3 import MP3
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Set
 
 @dataclass
 class Anime:
@@ -27,6 +27,8 @@ class Song:
     id: int
     season: str
     linked_ids: Dict[str, int]
+    composers: Set[str]
+    arrangers: Set[str]
 
     def __hash__(self):
         if self.audio:
@@ -52,6 +54,8 @@ class Song:
             data['annSongId'],
             data['animeVintage'],
             data['linked_ids'],
+            {name for composer in data['composers'] for name in composer['names']},
+            {name for arranger in data['arrangers'] for name in arranger['names']},
         )
 
     def file_path(self, songs_path):
@@ -159,6 +163,8 @@ class Song:
         song.tags['compilation'] = "1"
         song.tags['tracknumber'] = str(self.id)
         song.tags['date'] = self.season[-4:]
+        song.tags['composer'] = '/'.join(self.composers)
+        song.tags['arranger'] = '/'.join(self.arrangers)
 
         if encoding:
             song.tags['encodedby'] = encoding
