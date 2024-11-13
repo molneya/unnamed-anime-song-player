@@ -81,7 +81,7 @@ class Options:
         parser.add_argument("--search-anime", default=self.search_anime, type=str, nargs='*', metavar="ANIME", help="search for anime to play from")
         parser.add_argument("--exact-search", default=self.exact_search, action="store_true", help="show results for exact searches only")
         parser.add_argument("--copyright-as-album", default=self.copyright_as_album, action="store_true", help="sets mp3 copyright info as album info instead")
-        parser.add_argument("--update-metadata", default=self.copyright_as_album, action="store_true", help="updates mp3 metadata for all previously downloaded songs")
+        parser.add_argument("--update-metadata", default=self.update_metadata, action="store_true", help="updates mp3 metadata for all previously downloaded songs")
         parser.add_argument("--start-with-unplayed", default=self.start_with_unplayed, action="store_true", help="starts playlist with unplayed songs first")
         parser.add_argument("--disable-discord-rpc", default=self.disable_discord_rpc, action="store_true", help="disables discord rich presence")
         parser.add_argument("--include-cover-art", default=self.include_cover_art, action="store_true", help="adds anime covert art to audio tracks")
