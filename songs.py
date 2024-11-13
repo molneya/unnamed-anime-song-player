@@ -188,7 +188,7 @@ class Song:
         '''
         if not self.image_file_path(options.covers_path):
             logging.warning(f"Anilist ID not linked: {self.audio}")
-            return
+            return False
 
         query = """
             query ($id: Int) {
@@ -211,7 +211,7 @@ class Song:
 
         if not r.ok:
             logging.warning(f"Bad request for Anilist query")
-            return
+            return False
 
         json = r.json()
         image_url = json['data']['Media']['coverImage']['extraLarge']
@@ -220,20 +220,28 @@ class Song:
 
         if not r.ok:
             logging.warning(f"Bad request Anilist image query")
-            return
+            return False
 
         with open(self.image_file_path(options.covers_path), 'wb') as f:
             logging.debug(f"Saving file: {self.image_file_path(options.covers_path)}")
             f.write(r.content)
 
+        return True
+
     def set_image(self, options):
         '''
         Sets mp3 cover art.
         '''
+        success = False
+        # If the cover doesn't exist, don't set the image
         if not self.image_file_path(options.covers_path):
             return
+        # Download image
         if not os.path.exists(self.image_file_path(options.covers_path)):
-            self.download_image(options)
+            success = self.download_image(options)
+        # If the image download failed for some reason, we can't set the image
+        if not success:
+            return
 
         song = MP3(self.file_path(options.songs_path))
 
