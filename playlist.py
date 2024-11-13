@@ -18,8 +18,9 @@ class Playlist:
         self.duration = 0
 
         # Discord rich presence
-        self.rpc = Presence(1299967728874029137)
-        self.rpc.connect()
+        if self.options.enable_discord_rpc:
+            self.rpc = Presence(1299967728874029137)
+            self.rpc.connect()
 
     def load_file(self, file, songs):
         '''
@@ -205,7 +206,7 @@ class Playlist:
 
             self.update_database(song)
 
-            if not self.options.disable_discord_rpc:
+            if self.options.enable_discord_rpc:
                 self.update_rich_presence(song)
 
             song.play(self.options)
