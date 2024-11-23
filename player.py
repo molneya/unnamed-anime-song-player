@@ -5,7 +5,7 @@ from options import Options
 from playlist import Playlist
 
 def main():
-    print("unnamed music player version: 20241123")
+    print("unnamed music player version: 20241124")
 
     # Parse player options from file and command line
     options = Options()
