@@ -232,16 +232,15 @@ class Song:
         '''
         Sets mp3 cover art.
         '''
-        success = False
         # If the cover doesn't exist, don't set the image
         if not self.image_file_path(options.covers_path):
             return
         # Download image
         if not os.path.exists(self.image_file_path(options.covers_path)):
-            success = self.download_image(options)
-        # If the image download failed for some reason, we can't set the image
-        if not success:
-            return
+            successfully_downloaded = self.download_image(options)
+
+            if not successfully_downloaded:
+                return
 
         song = MP3(self.file_path(options.songs_path))
 
