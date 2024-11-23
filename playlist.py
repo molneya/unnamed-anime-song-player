@@ -177,8 +177,11 @@ class Playlist:
         '''
         Updates all metadata for playlist.
         '''
-        for song in self.songs:
+        downloaded_songs = list(filter(lambda song: os.path.isfile(song.file_path(self.options.songs_path)), self.songs))
+
+        for index, song in enumerate(downloaded_songs):
             song.set_metadata(self.options)
+            print(f"Updated metadata for {song.full_name(self.options.prefer_english)} ({index+1}/{len(downloaded_songs)})")
 
     def play(self):
         '''
