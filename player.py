@@ -37,6 +37,6 @@ if __name__ == "__main__":
     try:
         main()
     except:
-        with open("trackback.log", 'a') as log_file:
-            traceback.print_exc()
+        with open("trackback.log", 'w') as log_file:
             traceback.print_exc(file=log_file)
+            raise
