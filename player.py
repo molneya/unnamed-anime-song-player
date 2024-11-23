@@ -1,5 +1,5 @@
 
-import argparse, logging, os, pathlib
+import argparse, logging, os, pathlib, traceback
 from database import Database
 from options import Options
 from playlist import Playlist
@@ -34,4 +34,9 @@ def main():
     playlist.play()
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except:
+        with open("trackback.log", 'a') as log_file:
+            traceback.print_exc()
+            traceback.print_exc(file=log_file)
